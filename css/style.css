@@ -392,6 +392,38 @@ body {
 .q-type-badge.single { background: #dbeafe; color: #2563eb; }
 .q-type-badge.multiple { background: #fef3c7; color: #92400e; }
 .q-type-badge.judge { background: #ede9fe; color: #7c3aed; }
+.q-type-badge.choice { background: #dbeafe; color: #2563eb; }
+.q-type-badge.fill   { background: #d1fae5; color: #065f46; }
+.q-type-badge.calc   { background: #fce7f3; color: #9d174d; }
+.q-type-badge.proof  { background: #e0e7ff; color: #3730a3; }
+
+/* ────────── 题目导航面板 ────────── */
+.q-nav {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+  margin-bottom: 16px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+.q-nav-title { font-size: .8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 8px; }
+.q-nav-grid { display: flex; flex-wrap: wrap; gap: 4px; }
+.q-nav-item {
+  display: inline-flex; align-items: center; gap: 1px;
+  padding: 4px 6px; border-radius: 5px; cursor: pointer;
+  font-size: .72rem; font-weight: 600; min-width: 32px;
+  justify-content: center; border: 1.5px solid var(--border);
+  background: #fff; color: var(--text-secondary); transition: all .15s;
+}
+.q-nav-item:hover { border-color: var(--primary-light); background: var(--primary-bg); }
+.q-nav-item small { font-size: .55rem; opacity: .6; }
+.q-nav-item.current { background: var(--primary); color: #fff; border-color: var(--primary); }
+.q-nav-item.current small { opacity: 1; }
+.q-nav-item.correct { background: var(--success-bg); border-color: var(--success); color: var(--success); }
+.q-nav-item.wrong { background: var(--danger-bg); border-color: var(--danger); color: var(--danger); }
+.q-nav-item.answered { background: #fef3c7; border-color: #d97706; color: #92400e; }
+.q-nav-sticky { position: sticky; top: 8px; z-index: 10; }
 
 .question-card .q-text {
   font-size: 1.05rem;
