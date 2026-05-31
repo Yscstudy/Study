@@ -9,8 +9,8 @@ function fixMath(txt) {
   // === Complete Greek alphabet ===
   var g1 = {alpha:'α',beta:'β',gamma:'γ',delta:'δ',epsilon:'ε',zeta:'ζ',eta:'η',theta:'θ',iota:'ι',kappa:'κ',lambda:'λ',mu:'μ',nu:'ν',xi:'ξ',pi:'π',rho:'ρ',sigma:'σ',tau:'τ',upsilon:'υ',phi:'φ',chi:'χ',psi:'ψ',omega:'ω',varepsilon:'ε',vartheta:'ϑ',varphi:'φ',varrho:'ϱ',varsigma:'ς'};
   var g2 = {Gamma:'Γ',Delta:'Δ',Theta:'Θ',Lambda:'Λ',Xi:'Ξ',Pi:'Π',Sigma:'Σ',Upsilon:'Υ',Phi:'Φ',Psi:'Ψ',Omega:'Ω'};
-  for (var k in g1) s = s.split('\\\\'+k).join(g1[k]);
-  for (var k in g2) s = s.split('\\\\'+k).join(g2[k]);
+  for (var k in g1) s = s.split('\\'+k).join(g1[k]);
+  for (var k in g2) s = s.split('\\'+k).join(g2[k]);
 
   // === Math operators ===
   var ops = {
@@ -38,26 +38,26 @@ function fixMath(txt) {
     'qquad':'  ','quad':' ','\\ ':' ','\\;':' ','\\,':' ',
     'displaystyle':'','textstyle':'','scriptstyle':'',
   };
-  for (var k in ops) s = s.split('\\\\'+k).join(ops[k]);
+  for (var k in ops) s = s.split('\\'+k).join(ops[k]);
 
   // === Fractions ===
-  s = s.replace(/\\\\frac\{([^{}]+)\}\{([^{}]+)\}/g, '($1)/($2)');
-  s = s.replace(/\\\\dfrac\{([^{}]+)\}\{([^{}]+)\}/g, '($1)/($2)');
-  s = s.replace(/\\\\binom\{([^{}]+)\}\{([^{}]+)\}/g, 'C($1,$2)');
+  s = s.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, '($1)/($2)');
+  s = s.replace(/\\dfrac\{([^{}]+)\}\{([^{}]+)\}/g, '($1)/($2)');
+  s = s.replace(/\\binom\{([^{}]+)\}\{([^{}]+)\}/g, 'C($1,$2)');
   // === Square root ===
-  s = s.replace(/\\\\sqrt\[([^\]]+)\]\{([^}]+)\}/g, '($2)^(1/$1)');
-  s = s.replace(/\\\\sqrt\{([^}]+)\}/g, '√($1)');
+  s = s.replace(/\\sqrt\[([^\]]+)\]\{([^}]+)\}/g, '($2)^(1/$1)');
+  s = s.replace(/\\sqrt\{([^}]+)\}/g, '√($1)');
   // === Superscript/subscript ===
   s = s.replace(/\^\{([^}]+)\}/g, '^($1)');
   s = s.replace(/_\{([^}]+)\}/g, '_$1');
   // === Remove text formatting ===
-  s = s.replace(/\\\\(text|textbf|textit|texttt|textrm|textsf|textsc|emph)\{([^}]+)\}/g, '$2');
+  s = s.replace(/\\(text|textbf|textit|texttt|textrm|textsf|textsc|emph)\{([^}]+)\}/g, '$2');
   // === Remove array/matrix environments ===
-  s = s.replace(/\\\\(begin|end)\{[^}]*\}/g, '');
+  s = s.replace(/\\(begin|end)\{[^}]*\}/g, '');
   // === Remove braces (LaTeX grouping) ===
-  s = s.replace(/\\\\\{/g,'{').replace(/\\\\\}/g,'}');
+  s = s.replace(/\\\{/g,'{').replace(/\\\}/g,'}');
   // === Clean up: remove remaining backslash+letters ===
-  s = s.replace(/\\\\[a-zA-Z]+/g, '');
+  s = s.replace(/\\[a-zA-Z]+/g, '');
   // === Clean up: remove any leftover $ signs ===
   s = s.split('$').join('');
   return s;
