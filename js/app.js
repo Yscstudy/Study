@@ -9,8 +9,8 @@ function fixMath(txt) {
   // === Complete Greek alphabet ===
   var g1 = {alpha:'α',beta:'β',gamma:'γ',delta:'δ',epsilon:'ε',zeta:'ζ',eta:'η',theta:'θ',iota:'ι',kappa:'κ',lambda:'λ',mu:'μ',nu:'ν',xi:'ξ',pi:'π',rho:'ρ',sigma:'σ',tau:'τ',upsilon:'υ',phi:'φ',chi:'χ',psi:'ψ',omega:'ω',varepsilon:'ε',vartheta:'ϑ',varphi:'φ',varrho:'ϱ',varsigma:'ς'};
   var g2 = {Gamma:'Γ',Delta:'Δ',Theta:'Θ',Lambda:'Λ',Xi:'Ξ',Pi:'Π',Sigma:'Σ',Upsilon:'Υ',Phi:'Φ',Psi:'Ψ',Omega:'Ω'};
-  for (var k in g1) s = s.split('\\\\'+k).join(g1[k]);
-  for (var k in g2) s = s.split('\\\\'+k).join(g2[k]);
+  for (var k in g1) s = s.split('\\'+k).join(g1[k]);
+  for (var k in g2) s = s.split('\\'+k).join(g2[k]);
 
   // === Math operators ===
   var ops = {
@@ -32,32 +32,37 @@ function fixMath(txt) {
     'log':'log','ln':'ln','lg':'lg','exp':'exp','lim':'lim','sup':'sup','inf':'inf','max':'max','min':'min',
     'gcd':'gcd','det':'det','deg':'deg','dim':'dim','ker':'ker','hom':'hom','arg':'arg',
     'Re':'ℜ','Im':'ℑ','hbar':'ℏ',
-    'bar':'','hat':'','tilde':'','vec':'','dot':'','ddot':'','widehat':'','widetilde':'',
-    'overline':'','underline':'','overbrace':'','underbrace':'',
-    'big':'','Big':'','bigg':'','Bigg':'','left':'','right':'','middle':'',
+    'left':'','right':'','middle':'',
     'qquad':'  ','quad':' ','\\ ':' ','\\;':' ','\\,':' ',
     'displaystyle':'','textstyle':'','scriptstyle':'',
   };
-  for (var k in ops) s = s.split('\\\\'+k).join(ops[k]);
+  for (var k in ops) s = s.split('\\'+k).join(ops[k]);
 
   // === Fractions ===
-  s = s.replace(/\\\\frac\{([^{}]+)\}\{([^{}]+)\}/g, '($1)/($2)');
-  s = s.replace(/\\\\dfrac\{([^{}]+)\}\{([^{}]+)\}/g, '($1)/($2)');
-  s = s.replace(/\\\\binom\{([^{}]+)\}\{([^{}]+)\}/g, 'C($1,$2)');
+  s = s.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, '($1)/($2)');
+  s = s.replace(/\\dfrac\{([^{}]+)\}\{([^{}]+)\}/g, '($1)/($2)');
+  s = s.replace(/\\binom\{([^{}]+)\}\{([^{}]+)\}/g, 'C($1,$2)');
   // === Square root ===
-  s = s.replace(/\\\\sqrt\[([^\]]+)\]\{([^}]+)\}/g, '($2)^(1/$1)');
-  s = s.replace(/\\\\sqrt\{([^}]+)\}/g, '√($1)');
+  s = s.replace(/\\sqrt\[([^\]]+)\]\{([^}]+)\}/g, '($2)^(1/$1)');
+  s = s.replace(/\\sqrt\{([^}]+)\}/g, '√($1)');
   // === Superscript/subscript ===
   s = s.replace(/\^\{([^}]+)\}/g, '^($1)');
   s = s.replace(/_\{([^}]+)\}/g, '_$1');
-  // === Remove text formatting ===
-  s = s.replace(/\\\\(text|textbf|textit|texttt|textrm|textsf|textsc|emph)\{([^}]+)\}/g, '$2');
+  // === Accents: bar(X) -> X̄, overline{...} -> (...)̄ ===
+  s = s.replace(/\\overline\{([^}]+)\}/g, '($1)̄');
+  s = s.replace(/\\bar\{([^}]+)\}/g, '$1̄');
+  s = s.replace(/\\hat\{([^}]+)\}/g, '$1̂');
+  s = s.replace(/\\tilde\{([^}]+)\}/g, '$1̃');
+  s = s.replace(/\\vec\{([^}]+)\}/g, '$1⃗');
+  s = s.replace(/\\dot\{([^}]+)\}/g, '$1̇');
+  s = s.replace(/\\ddot\{([^}]+)\}/g, '$1̈');
+  s = s.replace(/\\(text|textbf|textit|texttt|textrm|textsf|textsc|emph)\{([^}]+)\}/g, '$2');
   // === Remove array/matrix environments ===
-  s = s.replace(/\\\\(begin|end)\{[^}]*\}/g, '');
+  s = s.replace(/\\(begin|end)\{[^}]*\}/g, '');
   // === Remove braces (LaTeX grouping) ===
-  s = s.replace(/\\\\\{/g,'{').replace(/\\\\\}/g,'}');
+  s = s.replace(/\\\{/g,'{').replace(/\\\}/g,'}');
   // === Clean up: remove remaining backslash+letters ===
-  s = s.replace(/\\\\[a-zA-Z]+/g, '');
+  s = s.replace(/\\[a-zA-Z]+/g, '');
   // === Clean up: remove any leftover $ signs ===
   s = s.split('$').join('');
   return s;
