@@ -138,7 +138,7 @@ var App = {
     }
 
     list.innerHTML = items.map(function(k) {
-      return '<div class="knowledge-card" data-id="' + k.id + '"><div class="card-header"><span class="arrow">▶</span><span class="cat-badge">' + k.category + '</span><span class="title">' + k.title + '</span></div><div class="card-body">' + k.content + '</div></div>';
+      return '<div class="knowledge-card" data-id="' + k.id + '"><div class="card-header"><span class="arrow">▶</span><span class="cat-badge">' + k.category + '</span><span class="title">' + fixMath(k.title) + '</span></div><div class="card-body">' + fixMath(k.content) + '</div></div>';
     }).join('');
 
     list.querySelectorAll('.card-header').forEach(function(header) {
