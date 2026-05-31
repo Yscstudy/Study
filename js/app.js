@@ -32,9 +32,7 @@ function fixMath(txt) {
     'log':'log','ln':'ln','lg':'lg','exp':'exp','lim':'lim','sup':'sup','inf':'inf','max':'max','min':'min',
     'gcd':'gcd','det':'det','deg':'deg','dim':'dim','ker':'ker','hom':'hom','arg':'arg',
     'Re':'ℜ','Im':'ℑ','hbar':'ℏ',
-    'bar':'','hat':'','tilde':'','vec':'','dot':'','ddot':'','widehat':'','widetilde':'',
-    'overline':'','underline':'','overbrace':'','underbrace':'',
-    'big':'','Big':'','bigg':'','Bigg':'','left':'','right':'','middle':'',
+    'left':'','right':'','middle':'',
     'qquad':'  ','quad':' ','\\ ':' ','\\;':' ','\\,':' ',
     'displaystyle':'','textstyle':'','scriptstyle':'',
   };
@@ -50,7 +48,14 @@ function fixMath(txt) {
   // === Superscript/subscript ===
   s = s.replace(/\^\{([^}]+)\}/g, '^($1)');
   s = s.replace(/_\{([^}]+)\}/g, '_$1');
-  // === Remove text formatting ===
+  // === Accents: bar(X) -> X̄, overline{...} -> (...)̄ ===
+  s = s.replace(/\\overline\{([^}]+)\}/g, '($1)̄');
+  s = s.replace(/\\bar\{([^}]+)\}/g, '$1̄');
+  s = s.replace(/\\hat\{([^}]+)\}/g, '$1̂');
+  s = s.replace(/\\tilde\{([^}]+)\}/g, '$1̃');
+  s = s.replace(/\\vec\{([^}]+)\}/g, '$1⃗');
+  s = s.replace(/\\dot\{([^}]+)\}/g, '$1̇');
+  s = s.replace(/\\ddot\{([^}]+)\}/g, '$1̈');
   s = s.replace(/\\(text|textbf|textit|texttt|textrm|textsf|textsc|emph)\{([^}]+)\}/g, '$2');
   // === Remove array/matrix environments ===
   s = s.replace(/\\(begin|end)\{[^}]*\}/g, '');
