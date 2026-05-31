@@ -2,6 +2,67 @@
    学习助手 — 主应用逻辑
    ============================================================ */
 
+// ---- 公式转换：LaTeX → 可读文本 ----
+function fixMath(txt) {
+  if (!txt) return txt;
+  var s = txt;
+  // === Complete Greek alphabet ===
+  var g1 = {alpha:'α',beta:'β',gamma:'γ',delta:'δ',epsilon:'ε',zeta:'ζ',eta:'η',theta:'θ',iota:'ι',kappa:'κ',lambda:'λ',mu:'μ',nu:'ν',xi:'ξ',pi:'π',rho:'ρ',sigma:'σ',tau:'τ',upsilon:'υ',phi:'φ',chi:'χ',psi:'ψ',omega:'ω',varepsilon:'ε',vartheta:'ϑ',varphi:'φ',varrho:'ϱ',varsigma:'ς'};
+  var g2 = {Gamma:'Γ',Delta:'Δ',Theta:'Θ',Lambda:'Λ',Xi:'Ξ',Pi:'Π',Sigma:'Σ',Upsilon:'Υ',Phi:'Φ',Psi:'Ψ',Omega:'Ω'};
+  for (var k in g1) s = s.split('\\\\'+k).join(g1[k]);
+  for (var k in g2) s = s.split('\\\\'+k).join(g2[k]);
+
+  // === Math operators ===
+  var ops = {
+    'infty':'∞','pm':'±','mp':'∓','times':'×','div':'÷','cdot':'·','ast':'*','circ':'∘','bullet':'•',
+    'oplus':'⊕','otimes':'⊗','odot':'⊙','vee':'∨','wedge':'∧','neg':'¬',
+    'leq':'≤','geq':'≥','neq':'≠','equiv':'≡','approx':'≈','simeq':'≃','cong':'≅','propto':'∝',
+    'sim':'∼','perp':'⊥','parallel':'∥','ll':'≪','gg':'≫','prec':'≺','succ':'≻',
+    'subset':'⊂','supset':'⊃','subseteq':'⊆','supseteq':'⊇','in':'∈','notin':'∉','ni':'∋',
+    'cup':'∪','cap':'∩','setminus':'∖','emptyset':'∅','varnothing':'∅',
+    'forall':'∀','exists':'∃','partial':'∂','nabla':'∇','aleph':'ℵ','ell':'ℓ',
+    'to':'→','rightarrow':'→','leftarrow':'←','uparrow':'↑','downarrow':'↓',
+    'leftrightarrow':'↔','Rightarrow':'⇒','Leftarrow':'⇐','Leftrightarrow':'⇔','mapsto':'↦',
+    'sum':'Σ','prod':'Π','int':'∫','oint':'∮','coprod':'∐',
+    'ldots':'…','cdots':'⋯','vdots':'⋮','ddots':'⋱',
+    'langle':'⟨','rangle':'⟩','lceil':'⌈','rceil':'⌉','lfloor':'⌊','rfloor':'⌋',
+    'triangle':'△','Diamond':'◇','Box':'□',
+    'sin':'sin','cos':'cos','tan':'tan','cot':'cot','sec':'sec','csc':'csc',
+    'arcsin':'arcsin','arccos':'arccos','arctan':'arctan',
+    'log':'log','ln':'ln','lg':'lg','exp':'exp','lim':'lim','sup':'sup','inf':'inf','max':'max','min':'min',
+    'gcd':'gcd','det':'det','deg':'deg','dim':'dim','ker':'ker','hom':'hom','arg':'arg',
+    'Re':'ℜ','Im':'ℑ','hbar':'ℏ',
+    'bar':'','hat':'','tilde':'','vec':'','dot':'','ddot':'','widehat':'','widetilde':'',
+    'overline':'','underline':'','overbrace':'','underbrace':'',
+    'big':'','Big':'','bigg':'','Bigg':'','left':'','right':'','middle':'',
+    'qquad':'  ','quad':' ','\\ ':' ','\\;':' ','\\,':' ',
+    'displaystyle':'','textstyle':'','scriptstyle':'',
+  };
+  for (var k in ops) s = s.split('\\\\'+k).join(ops[k]);
+
+  // === Fractions ===
+  s = s.replace(/\\\\frac\{([^{}]+)\}\{([^{}]+)\}/g, '($1)/($2)');
+  s = s.replace(/\\\\dfrac\{([^{}]+)\}\{([^{}]+)\}/g, '($1)/($2)');
+  s = s.replace(/\\\\binom\{([^{}]+)\}\{([^{}]+)\}/g, 'C($1,$2)');
+  // === Square root ===
+  s = s.replace(/\\\\sqrt\[([^\]]+)\]\{([^}]+)\}/g, '($2)^(1/$1)');
+  s = s.replace(/\\\\sqrt\{([^}]+)\}/g, '√($1)');
+  // === Superscript/subscript ===
+  s = s.replace(/\^\{([^}]+)\}/g, '^($1)');
+  s = s.replace(/_\{([^}]+)\}/g, '_$1');
+  // === Remove text formatting ===
+  s = s.replace(/\\\\(text|textbf|textit|texttt|textrm|textsf|textsc|emph)\{([^}]+)\}/g, '$2');
+  // === Remove array/matrix environments ===
+  s = s.replace(/\\\\(begin|end)\{[^}]*\}/g, '');
+  // === Remove braces (LaTeX grouping) ===
+  s = s.replace(/\\\\\{/g,'{').replace(/\\\\\}/g,'}');
+  // === Clean up: remove remaining backslash+letters ===
+  s = s.replace(/\\\\[a-zA-Z]+/g, '');
+  // === Clean up: remove any leftover $ signs ===
+  s = s.split('$').join('');
+  return s;
+}
+
 if (typeof PROB_STAT_KNOWLEDGE !== 'undefined') {
   KNOWLEDGE_DATA.push.apply(KNOWLEDGE_DATA, PROB_STAT_KNOWLEDGE);
 }
@@ -160,12 +221,12 @@ var App = {
       } else if (App._isSelected(q, i)) {
         cls = 'selected';
       }
-      return '<div class="option-item ' + cls + '" data-idx="' + i + '"><span class="opt-marker">' + String.fromCharCode(65 + i) + '</span><span>' + opt + '</span></div>';
+      return '<div class="option-item ' + cls + '" data-idx="' + i + '"><span class="opt-marker">' + String.fromCharCode(65 + i) + '</span><span>' + fixMath(opt) + '</span></div>';
     }).join('');
 
     var explHtml = '';
     if (revealed) {
-      explHtml = '<div class="explanation-box show ' + (App._isCorrect(q) ? 'correct-answer' : 'wrong-answer') + '"><div class="exp-title">' + (App._isCorrect(q) ? '✅ 回答正确！' : '❌ 回答错误') + '</div><div class="exp-text">' + q.explanation + '</div></div>';
+      explHtml = '<div class="explanation-box show ' + (App._isCorrect(q) ? 'correct-answer' : 'wrong-answer') + '"><div class="exp-title">' + (App._isCorrect(q) ? '✅ 回答正确！' : '❌ 回答错误') + '</div><div class="exp-text">' + fixMath(q.explanation) + '</div></div>';
     }
 
     var btns = '';
@@ -176,7 +237,7 @@ var App = {
     btns += '<button class="btn btn-outline" id="btn-back">↩ 返回首页</button>';
 
     var container = document.getElementById('quiz-active');
-    container.innerHTML = navHtml + '<div class="question-card"><div class="q-header"><span class="q-num">' + (idx+1) + '</span><span class="q-type-badge choice">选择题</span><span style="font-size:.8rem;color:var(--text-secondary);">概率统计</span></div><div class="q-text">' + q.question + '</div><div class="options-list">' + optHtml + '</div>' + explHtml + '<div class="question-actions">' + btns + '</div></div>';
+    container.innerHTML = navHtml + '<div class="question-card"><div class="q-header"><span class="q-num">' + (idx+1) + '</span><span class="q-type-badge choice">选择题</span><span style="font-size:.8rem;color:var(--text-secondary);">概率统计</span></div><div class="q-text">' + fixMath(q.question) + '</div><div class="options-list">' + optHtml + '</div>' + explHtml + '<div class="question-actions">' + btns + '</div></div>';
 
     this._bindChoiceEvents(q);
     this._bindNavEvents(state);
@@ -279,19 +340,19 @@ var App = {
       var bodyHtml = '';
       if (isChoice || q.subtype === '选择') {
         bodyHtml = '<div class="options-list">' + q.options.map(function(opt, oi) {
-          return '<div class="option-item" style="cursor:default;border-color:#e2e8f0;"><span class="opt-marker">' + String.fromCharCode(65 + oi) + '</span><span>' + opt + '</span></div>';
+          return '<div class="option-item" style="cursor:default;border-color:#e2e8f0;"><span class="opt-marker">' + String.fromCharCode(65 + oi) + '</span><span>' + fixMath(opt) + '</span></div>';
         }).join('') + '</div>';
         if (q.explanation) {
-          bodyHtml += '<div class="explanation-box show correct-answer" style="margin-top:12px;"><div class="exp-title">✅ 答案：' + String.fromCharCode(65 + q.answer) + '</div><div class="exp-text">' + q.explanation + '</div></div>';
+          bodyHtml += '<div class="explanation-box show correct-answer" style="margin-top:12px;"><div class="exp-title">✅ 答案：' + String.fromCharCode(65 + q.answer) + '</div><div class="exp-text">' + fixMath(q.explanation) + '</div></div>';
         }
       } else {
         bodyHtml = '<div style="margin-top:12px; border-bottom:2px dashed #cbd5e1; height:60px;"></div>';
         if (q.explanation) {
-          bodyHtml += '<details style="margin-top:8px;"><summary style="cursor:pointer;color:var(--primary);font-size:.85rem;">📖 查看答案/解析</summary><div style="padding:8px;background:#f8fafc;border-radius:6px;margin-top:4px;font-size:.88rem;">' + q.explanation + '</div></details>';
+          bodyHtml += '<details style="margin-top:8px;"><summary style="cursor:pointer;color:var(--primary);font-size:.85rem;">📖 查看答案/解析</summary><div style="padding:8px;background:#f8fafc;border-radius:6px;margin-top:4px;font-size:.88rem;">' + fixMath(q.explanation) + '</div></details>';
         }
       }
 
-      return '<div class="question-card" style="margin-bottom:16px;" id="q-card-' + i + '"><div class="q-header"><span class="q-num">' + (i+1) + '</span><span class="q-type-badge ' + typeClass + '">' + subtypeBadge + '</span><span style="font-size:.8rem;color:var(--text-secondary);">概率统计</span></div><div class="q-text">' + q.question + '</div>' + bodyHtml + '</div>';
+      return '<div class="question-card" style="margin-bottom:16px;" id="q-card-' + i + '"><div class="q-header"><span class="q-num">' + (i+1) + '</span><span class="q-type-badge ' + typeClass + '">' + subtypeBadge + '</span><span style="font-size:.8rem;color:var(--text-secondary);">概率统计</span></div><div class="q-text">' + fixMath(q.question) + '</div>' + bodyHtml + '</div>';
     }).join('');
 
     document.getElementById('quiz-active').innerHTML = html;
