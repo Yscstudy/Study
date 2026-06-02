@@ -66,6 +66,30 @@ function fixMath(txt) {
   s = s.replace(/\\\{/g,'{').replace(/\\\}/g,'}');
   // === Clean up: remove remaining backslash+letters ===
   s = s.replace(/\\[a-zA-Z]+/g, '');
+  // === Fix bare LaTeX commands (backslash eaten by JS parser) ===
+  // Only fix unambiguous commands that won't appear in normal text
+  s = s.split('displaystyle').join('');
+  s = s.split('infty').join('∞');
+  s = s.split('varnothing').join('∅');
+  s = s.split('partial').join('∂');
+  s = s.split('nabla').join('∇');
+  s = s.split('forall').join('∀');
+  s = s.split('exists').join('∃');
+  s = s.split('propto').join('∝');
+  s = s.split('aleph').join('ℵ');
+  s = s.split('ldots').join('…');
+  s = s.split('cdots').join('⋯');
+  s = s.split('ddots').join('⋱');
+  s = s.split('triangle').join('△');
+  s = s.split('notin').join('∉');
+  s = s.split('supseteq').join('⊇');
+  s = s.split('setminus').join('∖');
+  s = s.split('mapsto').join('↦');
+  s = s.split('longrightarrow').join('→');
+  s = s.split('leftrightarrow').join('↔');
+  // Fix integral: 'int_' → '∫_' (only when followed by subscript)
+  s = s.replace(/int_/g, '∫_');
+  s = s.replace(/int\^/g, '∫^');
   // === Clean up: remove any leftover $ signs ===
   s = s.split('$').join('');
   return s;
