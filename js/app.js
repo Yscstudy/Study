@@ -190,9 +190,21 @@ var App = {
   // ---- 选择题模式 (交互答题) ----
   startChoice: function() {
     this.quizMode = 'choice';
+    // 随机打乱每道选择题的选项顺序
+    var qs = ALL_CHOICE.map(function(q) {
+      var opts = q.options.slice();
+      var correct = opts[q.answer];
+      // Fisher-Yates shuffle
+      for (var i = opts.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = opts[i]; opts[i] = opts[j]; opts[j] = tmp;
+      }
+      var newIdx = opts.indexOf(correct);
+      return Object.assign({}, q, { options: opts, answer: newIdx });
+    });
     this.quizState = {
       phase: 'active',
-      questions: ALL_CHOICE.slice(),
+      questions: qs,
       currentIndex: 0,
       answers: {},
       revealed: {}
