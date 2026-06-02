@@ -156,7 +156,6 @@ var App = {
 
   // ==================== 刷题 ====================
   renderQuizHome: function() {
-    if (this.quizState && this.quizState.phase === 'active') return;
     this.quizState = null;
     document.getElementById('quiz-home').style.display = 'block';
     document.getElementById('quiz-active').style.display = 'none';
