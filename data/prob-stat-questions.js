@@ -1,7 +1,7 @@
 // 概率统计题库 — 9份真题PDF逐题录入
 // 选择 | 填空 | 计算 | 证明
 const PROB_STAT_QUESTIONS = [
-  {id:"z001",category:"概率统计",type:"single",subtype:"选择",paper:"01",question:"设 X~N(1.5,4)，则 P{-2<X<4}=",options:["0.8543", "0.1457", "0.3541", "0.2543"],answer:0,explanation:"标准化 Z=(X-1.5)/2，P(-1.75<Z<1.25)=Φ(1.25)-Φ(-1.75)=0.8944-(1-0.9599)=0.8543"},
+  {id:"z001",category:"概率统计",type:"single",subtype:"选择",paper:"01",question:"设 X~N(1.5,4)，则 P{-2<X<4}=（ ）（参考数据：Φ(1.25)=0.8944，Φ(1.75)=0.9599）",options:["0.8543", "0.1457", "0.3541", "0.2543"],answer:0,explanation:"标准化 Z=(X-1.5)/2，P(-1.75<Z<1.25)=Φ(1.25)-Φ(-1.75)=Φ(1.25)-(1-Φ(1.75))=0.8944-(1-0.9599)=0.8543"},
   {id:"z002",category:"概率统计",type:"single",subtype:"选择",paper:"01",question:"对于任意随机变量X,Y，若 E(XY)=E(X)E(Y)，则",options:["D(X+Y)=D(X)+D(Y)", "D(XY)=D(X)D(Y)", "X,Y一定独立", "X,Y不独立"],answer:0,explanation:"Cov(X,Y)=0，即X与Y不相关，此时D(X+Y)=D(X)+D(Y)"},
   {id:"z003",category:"概率统计",type:"single",subtype:"选择",paper:"01",question:"随机变量X密度 f(x)=x^(q-1)(x>1), 0(x≤1)，则q=",options:["1/2", "1", "-1", "3/2"],answer:2,explanation:"∫_1^∞ x^(q-1)dx=1 ⇒ q<0且 -1/q=1 ⇒ q=-1"},
   {id:"z004",category:"概率统计",type:"single",subtype:"选择",paper:"01",question:"事件A,B为对立事件，则( )不成立",options:["P(AB)=0", "P(B|A)=0.5", "P(A∪B)=1", "P(A)+P(B)=1"],answer:1,explanation:"对立:P(AB)=0, P(A)+P(B)=1。P(B|A)=0/P(A)=0≠0.5"},
