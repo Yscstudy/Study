@@ -2,6 +2,9 @@
    学习助手 — 主应用逻辑
    ============================================================ */
 
+// ---- HTML转义 ----
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
 // ---- 公式转换：LaTeX → 可读文本 ----
 function fixMath(txt) {
   if (!txt) return txt;
@@ -63,6 +66,30 @@ function fixMath(txt) {
   s = s.replace(/\\\{/g,'{').replace(/\\\}/g,'}');
   // === Clean up: remove remaining backslash+letters ===
   s = s.replace(/\\[a-zA-Z]+/g, '');
+  // === Fix bare LaTeX commands (backslash eaten by JS parser) ===
+  // Only fix unambiguous commands that won't appear in normal text
+  s = s.split('displaystyle').join('');
+  s = s.split('infty').join('∞');
+  s = s.split('varnothing').join('∅');
+  s = s.split('partial').join('∂');
+  s = s.split('nabla').join('∇');
+  s = s.split('forall').join('∀');
+  s = s.split('exists').join('∃');
+  s = s.split('propto').join('∝');
+  s = s.split('aleph').join('ℵ');
+  s = s.split('ldots').join('…');
+  s = s.split('cdots').join('⋯');
+  s = s.split('ddots').join('⋱');
+  s = s.split('triangle').join('△');
+  s = s.split('notin').join('∉');
+  s = s.split('supseteq').join('⊇');
+  s = s.split('setminus').join('∖');
+  s = s.split('mapsto').join('↦');
+  s = s.split('longrightarrow').join('→');
+  s = s.split('leftrightarrow').join('↔');
+  // Fix integral: 'int_' → '∫_' (only when followed by subscript)
+  s = s.replace(/int_/g, '∫_');
+  s = s.replace(/int\^/g, '∫^');
   // === Clean up: remove any leftover $ signs ===
   s = s.split('$').join('');
   return s;
@@ -153,7 +180,6 @@ var App = {
 
   // ==================== 刷题 ====================
   renderQuizHome: function() {
-    if (this.quizState && this.quizState.phase === 'active') return;
     this.quizState = null;
     document.getElementById('quiz-home').style.display = 'block';
     document.getElementById('quiz-active').style.display = 'none';
@@ -187,9 +213,21 @@ var App = {
   // ---- 选择题模式 (交互答题) ----
   startChoice: function() {
     this.quizMode = 'choice';
+    // 随机打乱每道选择题的选项顺序
+    var qs = ALL_CHOICE.map(function(q) {
+      var opts = q.options.slice();
+      var correct = opts[q.answer];
+      // Fisher-Yates shuffle
+      for (var i = opts.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = opts[i]; opts[i] = opts[j]; opts[j] = tmp;
+      }
+      var newIdx = opts.indexOf(correct);
+      return Object.assign({}, q, { options: opts, answer: newIdx });
+    });
     this.quizState = {
       phase: 'active',
-      questions: ALL_CHOICE.slice(),
+      questions: qs,
       currentIndex: 0,
       answers: {},
       revealed: {}
@@ -226,12 +264,12 @@ var App = {
       } else if (App._isSelected(q, i)) {
         cls = 'selected';
       }
-      return '<div class="option-item ' + cls + '" data-idx="' + i + '"><span class="opt-marker">' + String.fromCharCode(65 + i) + '</span><span>' + fixMath(opt) + '</span></div>';
+      return '<div class="option-item ' + cls + '" data-idx="' + i + '"><span class="opt-marker">' + String.fromCharCode(65 + i) + '</span><span>' + esc(fixMath(opt)) + '</span></div>';
     }).join('');
 
     var explHtml = '';
     if (revealed) {
-      explHtml = '<div class="explanation-box show ' + (App._isCorrect(q) ? 'correct-answer' : 'wrong-answer') + '"><div class="exp-title">' + (App._isCorrect(q) ? '✅ 回答正确！' : '❌ 回答错误') + '</div><div class="exp-text">' + fixMath(q.explanation) + '</div></div>';
+      explHtml = '<div class="explanation-box show ' + (App._isCorrect(q) ? 'correct-answer' : 'wrong-answer') + '"><div class="exp-title">' + (App._isCorrect(q) ? '✅ 回答正确！' : '❌ 回答错误') + '</div><div class="exp-text">' + esc(q.explanation) + '</div></div>';
     }
 
     var btns = '';
@@ -242,7 +280,7 @@ var App = {
     btns += '<button class="btn btn-outline" id="btn-back">↩ 返回首页</button>';
 
     var container = document.getElementById('quiz-active');
-    container.innerHTML = navHtml + '<div class="question-card"><div class="q-header"><span class="q-num">' + (idx+1) + '</span><span class="q-type-badge choice">选择题</span><span style="font-size:.8rem;color:var(--text-secondary);">概率统计</span></div><div class="q-text">' + fixMath(q.question) + '</div><div class="options-list">' + optHtml + '</div>' + explHtml + '<div class="question-actions">' + btns + '</div></div>';
+    container.innerHTML = navHtml + '<div class="question-card"><div class="q-header"><span class="q-num">' + (idx+1) + '</span><span class="q-type-badge choice">选择题</span><span style="font-size:.8rem;color:var(--text-secondary);">概率统计</span></div><div class="q-text">' + esc(fixMath(q.question)) + '</div><div class="options-list">' + optHtml + '</div>' + explHtml + '<div class="question-actions">' + btns + '</div></div>';
 
     this._bindChoiceEvents(q);
     this._bindNavEvents(state);
@@ -345,19 +383,19 @@ var App = {
       var bodyHtml = '';
       if (isChoice || q.subtype === '选择') {
         bodyHtml = '<div class="options-list">' + q.options.map(function(opt, oi) {
-          return '<div class="option-item" style="cursor:default;border-color:#e2e8f0;"><span class="opt-marker">' + String.fromCharCode(65 + oi) + '</span><span>' + fixMath(opt) + '</span></div>';
+          return '<div class="option-item" style="cursor:default;border-color:#e2e8f0;"><span class="opt-marker">' + String.fromCharCode(65 + oi) + '</span><span>' + esc(fixMath(opt)) + '</span></div>';
         }).join('') + '</div>';
         if (q.explanation) {
-          bodyHtml += '<div class="explanation-box show correct-answer" style="margin-top:12px;"><div class="exp-title">✅ 答案：' + String.fromCharCode(65 + q.answer) + '</div><div class="exp-text">' + fixMath(q.explanation) + '</div></div>';
+          bodyHtml += '<div class="explanation-box show correct-answer" style="margin-top:12px;"><div class="exp-title">✅ 详细解答</div><div class="exp-text">' + esc(q.explanation) + '</div></div>';
         }
       } else {
         bodyHtml = '<div style="margin-top:12px; border-bottom:2px dashed #cbd5e1; height:60px;"></div>';
         if (q.explanation) {
-          bodyHtml += '<details style="margin-top:8px;"><summary style="cursor:pointer;color:var(--primary);font-size:.85rem;">📖 查看答案/解析</summary><div style="padding:8px;background:#f8fafc;border-radius:6px;margin-top:4px;font-size:.88rem;">' + fixMath(q.explanation) + '</div></details>';
+          bodyHtml += '<details style="margin-top:8px;"><summary style="cursor:pointer;color:var(--primary);font-size:.85rem;">📖 查看答案/解析</summary><div style="padding:8px;background:#f8fafc;border-radius:6px;margin-top:4px;font-size:.88rem;">' + esc(fixMath(q.explanation)) + '</div></details>';
         }
       }
 
-      return '<div class="question-card" style="margin-bottom:16px;" id="q-card-' + i + '"><div class="q-header"><span class="q-num">' + (i+1) + '</span><span class="q-type-badge ' + typeClass + '">' + subtypeBadge + '</span><span style="font-size:.8rem;color:var(--text-secondary);">概率统计</span></div><div class="q-text">' + fixMath(q.question) + '</div>' + bodyHtml + '</div>';
+      return '<div class="question-card" style="margin-bottom:16px;" id="q-card-' + i + '"><div class="q-header"><span class="q-num">' + (i+1) + '</span><span class="q-type-badge ' + typeClass + '">' + subtypeBadge + '</span><span style="font-size:.8rem;color:var(--text-secondary);">概率统计</span></div><div class="q-text">' + esc(fixMath(q.question)) + '</div>' + bodyHtml + '</div>';
     }).join('');
 
     document.getElementById('quiz-active').innerHTML = html;
