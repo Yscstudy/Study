@@ -269,7 +269,7 @@ var App = {
 
     var explHtml = '';
     if (revealed) {
-      explHtml = '<div class="explanation-box show ' + (App._isCorrect(q) ? 'correct-answer' : 'wrong-answer') + '"><div class="exp-title">' + (App._isCorrect(q) ? '✅ 回答正确！' : '❌ 回答错误') + '</div><div class="exp-text">' + esc(fixMath(q.explanation)) + '</div></div>';
+      explHtml = '<div class="explanation-box show ' + (App._isCorrect(q) ? 'correct-answer' : 'wrong-answer') + '"><div class="exp-title">' + (App._isCorrect(q) ? '✅ 回答正确！' : '❌ 回答错误') + '</div><div class="exp-text">' + esc(q.explanation) + '</div></div>';
     }
 
     var btns = '';
@@ -386,7 +386,7 @@ var App = {
           return '<div class="option-item" style="cursor:default;border-color:#e2e8f0;"><span class="opt-marker">' + String.fromCharCode(65 + oi) + '</span><span>' + esc(fixMath(opt)) + '</span></div>';
         }).join('') + '</div>';
         if (q.explanation) {
-          bodyHtml += '<div class="explanation-box show correct-answer" style="margin-top:12px;"><div class="exp-title">✅ 答案：' + String.fromCharCode(65 + q.answer) + '</div><div class="exp-text">' + esc(fixMath(q.explanation)) + '</div></div>';
+          bodyHtml += '<div class="explanation-box show correct-answer" style="margin-top:12px;"><div class="exp-title">✅ 详细解答</div><div class="exp-text">' + esc(q.explanation) + '</div></div>';
         }
       } else {
         bodyHtml = '<div style="margin-top:12px; border-bottom:2px dashed #cbd5e1; height:60px;"></div>';
